@@ -1,6 +1,4 @@
 package com.example.datademo.controller;
-
-
 import java.util.ArrayList;
 
 import javax.validation.Valid;
@@ -13,13 +11,14 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.example.datademo.model.Holiday;
 import com.example.datademo.model.Leave;
 import com.example.datademo.model.User;
 import com.example.datademo.repo.LeaveRepository;
 import com.example.datademo.repo.UserRepository;
 
 @Controller
-public class AdminController {
+public class EmployeeController {
 	private UserRepository mRepo;
 	private LeaveRepository lRepo;
 	@Autowired
@@ -32,41 +31,25 @@ public class AdminController {
 		this.mRepo = mRepo;
 	}
 
-	@RequestMapping(path="/")
+	@RequestMapping(path="/staff")
 	public String Index()
 	{
-		return "index";
+		return "homeEmployee";
 	}
-	@RequestMapping(path = "/leaves/add", method = RequestMethod.GET)
+	@RequestMapping(path="/manager")
+	public String In()
+	{
+		return "homeManager";
+	}
+	@RequestMapping(path = "/leaves/addform", method = RequestMethod.GET)
     public String createLeave(Model model) {
         model.addAttribute("leave", new Leave());
-        return "edit";
+        return "leaveform";
     }
-	  @RequestMapping(path = "/leaves/createLeave", method = RequestMethod.POST)
-	    public String savenewLeave(@Valid Leave l, BindingResult bindingResult, Model model) {
-	    	if (bindingResult.hasErrors()) {
-	            return "edit";
-	        }
-	  
-	        lRepo.save(l);
-	    	ArrayList<Leave> plist = (ArrayList<Leave>) lRepo.findAll();
-		 	model.addAttribute("leavelist", plist);
-	       
-	
-	        return "createleave";
-	    }
-	    @RequestMapping(path = "/leaves/createLeave", method = RequestMethod.GET)
-	    public String getLeave(Model model) {
-	    	 ArrayList<Leave> plist = (ArrayList<Leave>) lRepo.findAll();
-	 		model.addAttribute("leavelist", plist);
-	     
-	        return "createleave";
-	    } 
-	
-	  @RequestMapping(path = "/leaves", method = RequestMethod.POST)
+	  @RequestMapping(path = "/leaves/viewform", method = RequestMethod.POST)
 	    public String saveLeave(@Valid Leave l, BindingResult bindingResult, Model model) {
 	    	if (bindingResult.hasErrors()) {
-	            return "edit";
+	            return "viewleaveform";
 	        }
 	  
 	        lRepo.save(l);
@@ -74,43 +57,39 @@ public class AdminController {
 		 	model.addAttribute("leavelist", plist);
 	       
 	
-	        return "leave";
+	        return "leaveform";
 	    }
-	    @RequestMapping(path = "/leaves", method = RequestMethod.GET)
+	  @RequestMapping(path = "/leaves/viewform", method = RequestMethod.GET)
 	    public String getAllLeave(Model model) {
 	    	 ArrayList<Leave> plist = (ArrayList<Leave>) lRepo.findAll();
 	 		model.addAttribute("leavelist", plist);
 	     
-	        return "leave";
+	        return "viewleaveform";
 	    } 
-	    @RequestMapping(path = "/leaves/edit/{id}", method = RequestMethod.GET)
+	    @RequestMapping(path = "/leaves/editform/{id}", method = RequestMethod.GET)
 	    public String editLeave( @PathVariable(value = "id") String id,@Valid Leave l,Model model) {   	
 	    	l = lRepo.findById(id).orElse(null);
 	    	System.out.println(l);
 	    	  lRepo.save(l);
 	        model.addAttribute("leaves", l);
-	        return "update";
+	        return "leaveform";
 	    }
-	    @RequestMapping(path = "/leaves/edit/{id}", method = RequestMethod.POST)
+	    @RequestMapping(path = "/leaves/editform/{id}", method = RequestMethod.POST)
 	    public String updateLeave( @PathVariable(value = "id") String id,@Valid Leave l,Model model) {   	
 	    	
 	    	  lRepo.save(l);
 	    	  ArrayList<Leave> plist = (ArrayList<Leave>) lRepo.findAll();
 			 	model.addAttribute("leavelist", plist);
 		       
-		
-		        return "leave";
+			     return "redirect:/leaves/viewform";
 	    }
-	    @RequestMapping(path = "/leaves/delete/{id}", method = RequestMethod.GET)
-	    public String deleteLeave(@PathVariable(name = "id") String id) {
+	    @RequestMapping(path = "/leaves/deleteform/{id}", method = RequestMethod.GET)
+	    public String deleteLeave(@PathVariable(name = "id") String id,Model m,Leave l) {
 	    	lRepo.delete(lRepo.findById(id).orElse(null));
-	        return "redirect:/leaves";
+	    	m.addAttribute("leaves", l);
+	        return "redirect:/leaves/viewform";
 	    }
-
-
-
-
-
-	
+	    
 	  
+
 }

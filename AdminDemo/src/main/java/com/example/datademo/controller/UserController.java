@@ -14,21 +14,30 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
+import com.example.datademo.model.Holiday;
 import com.example.datademo.model.Leave;
 import com.example.datademo.model.User;
 import com.example.datademo.repo.UserRepository;
+import com.example.datademo.repo.HolidayRepository;
 
 @Controller
 	public class UserController {
 		
 		
 		private UserRepository userRepository;
+		private HolidayRepository hRepo;
 		
 		@Autowired
 		public void setUserRepository(UserRepository userRepository) {
 			this.userRepository = userRepository;
 		}
-
+	    public HolidayRepository gethRepo() {
+				return hRepo;
+			}
+		@Autowired
+			public void sethRepo(HolidayRepository hRepo) {
+				this.hRepo = hRepo;
+			}
 		//ADMIN- Controller for Home Page
 		@RequestMapping("/home")
 	    public String userhome() {
@@ -56,7 +65,8 @@ import com.example.datademo.repo.UserRepository;
 	    @PostMapping("/home/addEmployee")
 	    public String processForm(@Valid User user, BindingResult result, Model model) {
 	        if (result.hasErrors()) {
-	            return "error";
+	        	model.addAttribute("managers", userRepository.findAll());
+	            return "addEmployee";
 	        }
 	         
 	        userRepository.save(user);
@@ -83,8 +93,75 @@ import com.example.datademo.repo.UserRepository;
 			 	 return "redirect:/home/viewEmployee" ;
 		        
 	    }
-	 
+	    //ADMIN- Controller for Edit holiday
+
+	    @RequestMapping(path = "/home/editholiday/{id}", method = RequestMethod.GET)
+	    public String editHoliday( 
+	       @PathVariable(name = "id") long id, Model model,@Valid Holiday h) {
+			h= hRepo.findById(id).orElse(null);
+		         hRepo.save(h);
+		     
+				 	model.addAttribute("holiday",h);
+		    	  return "addHoliday";
+	    }
+		
+	    @RequestMapping(path = "/home/editholiday/{id}", method = RequestMethod.POST)
+	    public String updateHoliday( 
+	       @PathVariable(name = "id") long id, Model model,@Valid Holiday h) {
+		    
+		         hRepo.save(h);
+		         ArrayList<Holiday> plist = (ArrayList<Holiday>) hRepo.findAll();
+				 	model.addAttribute("holiday", plist);
+		    	  return "redirect:/home/viewholiday";
+	    }
+	    
+	    
+	  
+	 //ADMIN-create holiday list
+	    @RequestMapping(path = "/home/addholiday", method = RequestMethod.GET)
+	    public String createLeave(Model model) {
+	        model.addAttribute("holiday", new Holiday());
+	        return "addHoliday";
+	    }
+
 	
+		  @RequestMapping(path = "/home/addholiday", method = RequestMethod.POST)
+		    public String saveLeave(@Valid  Holiday h, BindingResult bindingResult, Model model) {
+		    	if (bindingResult.hasErrors()) {
+		    		 return "addHoliday";
+		        }
+		  
+		  	  hRepo.save(h);
+	    	  ArrayList<Holiday> plist = (ArrayList<Holiday>) hRepo.findAll();
+			 	model.addAttribute("holiday", plist);
+		       
+		
+			 	  return "viewHoliday";
+		    }
+		    @RequestMapping(path = "/home/viewholiday", method = RequestMethod.GET)
+		    public String viewHoliday( Model model) {
+		 
+		  	  
+	    	  ArrayList<Holiday> plist = (ArrayList<Holiday>) hRepo.findAll();
+			 	model.addAttribute("holiday", plist);
+		       
+		
+			 	  return "viewHoliday";
+		
+		    }
+		  
+	
+		  
+		    //admin- delete for holiday
+	
+		    
+		    @RequestMapping(path = "/home/deleteholiday/{id}", method = RequestMethod.GET)
+		    public String deleteHoliday(@PathVariable(name = "id") long  id,Holiday h,Model m) {
+		    	 hRepo.delete(  hRepo.findById(id).orElse(null));
+		    	 m.addAttribute("holiday", hRepo.findAll());
+		    	 return "viewHoliday";
+		    }
+
 	    //ADMIN- Delete Controller for employee
 	    
 	    @RequestMapping(path = "/home/delete/{employeeid}", method = RequestMethod.GET)

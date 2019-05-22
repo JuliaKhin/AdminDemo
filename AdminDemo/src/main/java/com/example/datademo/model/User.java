@@ -8,8 +8,13 @@ import javax.persistence.GenerationType;
 //import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.Email;
+import javax.validation.constraints.NotEmpty;
 
 import org.hibernate.annotations.GenericGenerator;
+
+import com.example.datademo.validator.IsValidCompHour;
+import com.example.datademo.validator.IsValidPhoneNumber;
 
 //import org.hibernate.annotations.GenericGenerator;
 
@@ -23,14 +28,42 @@ public class User {
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	@Column(name = "employeeid", updatable = false, nullable = false)
 	private long employeeid;
+	@NotEmpty(message="Name is mandatory")
 	private String employeename;
+	@NotEmpty(message = "Please choose a role")
 	private String employeediv;
+	@IsValidPhoneNumber
 	private long employeecontact;
+	@NotEmpty(message = "Email is mandatory")
+	@Email(message = "Please provide a valid email address")
 	private String employeemail;
+	@NotEmpty(message = "Employee approver is mandatory")
 	private String reportsto;
+	@NotEmpty(message =  "Leave entitled is mandatory")
 	private String leaveentitled;
+	@IsValidCompHour
 	private double comphours;
+	private long leaveid;
 	
+	public User(long employeeid, String employeename, String employeediv, long employeecontact, String employeemail,
+			String reportsto, String leaveentitled, double comphours, long leaveid) {
+		super();
+		this.employeeid = employeeid;
+		this.employeename = employeename;
+		this.employeediv = employeediv;
+		this.employeecontact = employeecontact;
+		this.employeemail = employeemail;
+		this.reportsto = reportsto;
+		this.leaveentitled = leaveentitled;
+		this.comphours = comphours;
+		this.leaveid = leaveid;
+	}
+	public long getLeaveid() {
+		return leaveid;
+	}
+	public void setLeaveid(long leaveid) {
+		this.leaveid = leaveid;
+	}
 	public long getEmployeeid() {
 		return employeeid;
 	}
